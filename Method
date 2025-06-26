@@ -1,0 +1,8 @@
+private Dictionary<string, object> GetTestData(DateTime date)
+{
+    return new Dictionary<string, object>
+    {
+        { "SystemStatus", "Working Perfectly" },
+        { "TestMessage", "SMTP configuration successful!" }
+    };
+}
