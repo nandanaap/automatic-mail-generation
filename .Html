@@ -1,0 +1,22 @@
+{
+    "TEST",
+    new MailTemplate
+    {
+        Code = "TEST",
+        Subject = "AMS Test Email - {Date}",
+        BodyTemplate = @"Dear {RecipientName},
+
+This is a test email from your Auto Mail Generation System.
+
+Test Details:
+- Date: {Date}
+- System Status: {SystemStatus}
+- Test Message: {TestMessage}
+
+If you receive this email, your SMTP configuration is working correctly!
+
+Best regards,
+AMS Test System",
+        Category = "Testing"
+    }
+}
