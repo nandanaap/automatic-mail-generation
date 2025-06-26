@@ -1,0 +1,10 @@
+{
+  "EmailSettings": {
+    "SmtpHost": "smtp.gmail.com",
+    "SmtpPort": "587",
+    "Username": "your-email@gmail.com",
+    "Password": "your-app-password",
+    "SenderEmail": "your-email@gmail.com",
+    "SenderName": "AMS System"
+  }
+}
