@@ -1,0 +1,22 @@
+public async Task<DataResponse> GetDataForCodeAsync(string code, DateTime date)
+{
+    await Task.Delay(100);
+    var data = new Dictionary<string, object>();
+
+    switch (code.ToUpper())
+    {
+        case "TEST": // Test case
+            data = GetTestData(date);
+            break;
+        case "PE":
+            data = GetProductionEmployeeData(date);
+            break;
+        // ... rest of your cases
+    }
+
+    return new DataResponse
+    {
+        Data = data,
+        Success = true
+    };
+}
