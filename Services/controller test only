@@ -1,0 +1,76 @@
+// Controllers/t23c3_testpageController.cs (TEST Only)
+using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using t23p0.Models;
+using t23p0.Services;
+
+namespace t23p0.Controllers
+{
+    public class t23c3_testpageController : Controller
+    {
+        private readonly IAutoMailService _autoMailService;
+        private readonly ILogger<t23c3_testpageController> _logger;
+
+        public t23c3_testpageController(IAutoMailService autoMailService, ILogger<t23c3_testpageController> logger)
+        {
+            _autoMailService = autoMailService;
+            _logger = logger;
+        }
+
+        // Display initial view
+        [ActionName("t23v3_index")]
+        public IActionResult t23v3_index()
+        {
+            var model = new MailRequest
+            {
+                SelectedDate = DateTime.Today
+            };
+            return View(model);
+        }
+
+        // Handle mail generation and sending (TEST only)
+        [HttpPost]
+        [ActionName("SendMail")]
+        public async Task<IActionResult> SendMail(string code, DateTime selectedDate)
+        {
+            try
+            {
+                // Only accept TEST code
+                if (string.IsNullOrEmpty(code) || code.Trim().ToUpper() != "TEST")
+                {
+                    ViewBag.Message = "Error: Only 'TEST' code is supported";
+                    return View("t23v3_index", new MailRequest { Code = code, SelectedDate = selectedDate });
+                }
+
+                var mailRequest = new MailRequest
+                {
+                    Code = "TEST",
+                    SelectedDate = selectedDate
+                };
+
+                // Generate and send test mail
+                var result = await _autoMailService.GenerateAndSendTestMailAsync(mailRequest);
+
+                if (result.Success)
+                {
+                    ViewBag.Message = $"Test mail sent successfully to {result.RecipientEmail} at {result.SentAt:yyyy-MM-dd HH:mm:ss}";
+                    _logger.LogInformation($"Test mail sent successfully to {result.RecipientEmail}");
+                }
+                else
+                {
+                    ViewBag.Message = $"Error: {result.Message}";
+                    _logger.LogError($"Failed to send test mail: {result.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = "An unexpected error occurred while sending the test mail.";
+                _logger.LogError(ex, "Exception occurred while sending test mail");
+            }
+
+            return View("t23v3_index", new MailRequest { Code = code, SelectedDate = selectedDate });
+        }
+    }
+}
