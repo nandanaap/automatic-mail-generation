@@ -1,0 +1,115 @@
+// Controllers/t23c3_testpageController.cs (Direct SMTP - No Service)
+using System;
+using System.Net;
+using System.Net.Mail;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using t23p0.Models;
+
+namespace t23p0.Controllers
+{
+    public class t23c3_testpageController : Controller
+    {
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<t23c3_testpageController> _logger;
+
+        public t23c3_testpageController(IConfiguration configuration, ILogger<t23c3_testpageController> logger)
+        {
+            _configuration = configuration;
+            _logger = logger;
+        }
+
+        // Display initial view
+        [ActionName("t23v3_index")]
+        public IActionResult t23v3_index()
+        {
+            var model = new MailRequest
+            {
+                SelectedDate = DateTime.Today
+            };
+            return View(model);
+        }
+
+        // Handle mail generation and sending (Direct SMTP)
+        [HttpPost]
+        [ActionName("SendMail")]
+        public async Task<IActionResult> SendMail(string code, DateTime selectedDate)
+        {
+            try
+            {
+                // Only accept TEST code
+                if (string.IsNullOrEmpty(code) || code.Trim().ToUpper() != "TEST")
+                {
+                    ViewBag.Message = "Error: Only 'TEST' code is supported";
+                    return View("t23v3_index", new MailRequest { Code = code, SelectedDate = selectedDate });
+                }
+
+                // Direct email creation (similar to Syncfusion approach)
+                MailMessage mail = new MailMessage();
+                
+                // Set email properties
+                mail.To.Add("nandanapramodak@gmail.com");
+                mail.From = new MailAddress("nandanapramodak@gmail.com", "AMS Test System");
+                mail.Subject = $"AMS Test Email - {selectedDate:dd MMMM yyyy}";
+                mail.Body = $@"Dear Nandana Pramod,
+
+This is a test email from your Auto Mail Generation System.
+
+Test Details:
+- Date: {selectedDate:dd MMMM yyyy}
+- System Status: Working Perfectly
+- Test Message: SMTP configuration successful!
+- Department: Testing
+- Role: Developer
+
+If you receive this email, your SMTP configuration is working correctly!
+
+Best regards,
+AMS Test System";
+
+                mail.IsBodyHtml = false;
+
+                // SMTP Configuration (similar to SmtpMail.SmtpServer)
+                SmtpClient smtpClient = new SmtpClient();
+                smtpClient.Host = _configuration["EmailSettings:SmtpHost"] ?? "smtp.gmail.com";
+                smtpClient.Port = int.Parse(_configuration["EmailSettings:SmtpPort"] ?? "587");
+                smtpClient.EnableSsl = true;
+                smtpClient.Credentials = new NetworkCredential(
+                    _configuration["EmailSettings:Username"],
+                    _configuration["EmailSettings:Password"]
+                );
+
+                // Send email (similar to SmtpMail.Send(mail))
+                await smtpClient.SendMailAsync(mail);
+
+                ViewBag.Message = $"Test mail sent successfully to nandanapramodak@gmail.com at {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+                _logger.LogInformation("Test mail sent successfully to nandanapramodak@gmail.com");
+
+                // Dispose resources
+                mail.Dispose();
+                smtpClient.Dispose();
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = "An unexpected error occurred while sending the test mail.";
+                _logger.LogError(ex, "Exception occurred while sending test mail");
+            }
+
+            return View("t23v3_index", new MailRequest { Code = code, SelectedDate = selectedDate });
+        }
+    }
+}
+
+// Models/MailRequest.cs (Simple model)
+using System;
+
+namespace t23p0.Models
+{
+    public class MailRequest
+    {
+        public string Code { get; set; }
+        public DateTime SelectedDate { get; set; }
+    }
+}
