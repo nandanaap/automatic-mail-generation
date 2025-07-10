@@ -1,0 +1,67 @@
+FUNCTION t23f_testmerge.
+*"----------------------------------------------------------------------
+*"*"Local Interface:
+*"  IMPORTING
+*"     VALUE(lc_message) TYPE string
+*"  EXPORTING
+*"     VALUE(lc_message1) TYPE string
+*"----------------------------------------------------------------------
+
+  DATA: lc_fieldnam TYPE string_table,
+        lc_tranvalue TYPE string_table,
+        lc_message TYPE string,
+        lc_message1 TYPE string,
+        lv_placeholder TYPE string,
+        lv_index TYPE i.
+
+  " Initialize arrays
+  lc_fieldnam = VALUE #( ).
+  lc_tranvalue = VALUE #( ).
+
+  " Populate field names and translations
+  APPEND 'recipient' TO lc_fieldnam.
+  APPEND 'Kahani' TO lc_tranvalue.
+
+  APPEND 'amount' TO lc_fieldnam.
+  APPEND '8750' TO lc_tranvalue.
+
+  APPEND 'date' TO lc_fieldnam.
+  APPEND '25/01/2025' TO lc_tranvalue.
+
+  APPEND 'vno' TO lc_fieldnam.
+  APPEND 'ABC-001' TO lc_tranvalue.
+
+  APPEND 'myname' TO lc_fieldnam.
+  APPEND 'nandana' TO lc_tranvalue.
+
+  " Original message with placeholders
+  lc_message = |Dear <<recipient>> { + 
+               }We are pleased to enclose a cheque of <<amount>> towards payment of your bills. { +
+               }This has been accounted in our books under voucher number <<vno>>. { +
+               }With best regards Kahani Technologies, <<myname>>|.
+
+  " Initialize the output message
+  lc_message1 = lc_message.
+
+  " Logic to translate the contents of lc_message into lc_message1
+  LOOP AT lc_fieldnam INTO DATA(lv_fieldname).
+    lv_index = sy-tabix.
+    
+    " Create placeholder format <<fieldname>>
+    lv_placeholder = |<<{ lv_fieldname }>>|.
+    
+    " Check if the message contains this placeholder
+    IF lc_message1 CS lv_placeholder.
+      " Get the corresponding translation value
+      READ TABLE lc_tranvalue INTO DATA(lv_translation) INDEX lv_index.
+      IF sy-subrc = 0.
+        " Replace the placeholder with the actual value
+        REPLACE ALL OCCURRENCES OF lv_placeholder IN lc_message1 WITH lv_translation.
+      ENDIF.
+    ENDIF.
+  ENDLOOP.
+
+  " Return the translated message
+  RETURN lc_message1.
+
+ENDFUNCTION.
