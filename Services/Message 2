@@ -1,0 +1,45 @@
+using System;
+using System.Collections.Generic;
+
+public class MessageTranslator
+{
+    public static string TranslateMessage()
+    {
+        // Field names and their corresponding translated values
+        Dictionary<string, string> fieldTranslations = new Dictionary<string, string>
+        {
+            {"recipient", "Kahani"},
+            {"amount", "8750"},
+            {"date", "25/01/2025"},
+            {"vno", "ABC-001"},
+            {"myname", "Nandana"}
+        };
+
+        // Original message with placeholders
+        string originalMessage = "Dear <recipient>, " +
+                               "We are pleased to enclose a cheque of <amount> towards payment of your bills. " +
+                               "This has been accounted in our books under voucher number <vno>. " +
+                               "With best regards, <myname> Technologies, <myname>";
+
+        // Translate the message by replacing placeholders
+        string translatedMessage = originalMessage;
+        
+        foreach (var field in fieldTranslations)
+        {
+            string placeholder = $"<{field.Key}>";
+            translatedMessage = translatedMessage.Replace(placeholder, field.Value);
+        }
+
+        return translatedMessage;
+    }
+
+    public static void Main(string[] args)
+    {
+        string result = TranslateMessage();
+        Console.WriteLine("Original message with placeholders:");
+        Console.WriteLine("Dear <recipient>, We are pleased to enclose a cheque of <amount>...");
+        Console.WriteLine();
+        Console.WriteLine("Translated message:");
+        Console.WriteLine(result);
+    }
+}
